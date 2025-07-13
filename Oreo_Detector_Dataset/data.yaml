@@ -1,0 +1,5 @@
+train: ../oreo_Detector_Dataset/train/images
+val: ../oreo_Detector_Dataset/valid/images
+
+nc: 1
+names: ['oreo']

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YOLO Webcam Detector</title>
+  </head>
+  <body>
+    <h1>Live Detection</h1>
+    <video id="video" width="640" height="480" autoplay></video>
+    <canvas id="canvas" width="640" height="480" style="display: none"></canvas>
+    <img id="result" width="640" height="480" />
+    <script>
+      const video = document.getElementById("video");
+      const canvas = document.getElementById("canvas");
+      const resultImg = document.getElementById("result");
+
+      navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+        video.srcObject = stream;
+      });
+
+      const captureAndSend = () => {
+        const context = canvas.getContext("2d");
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataURL = canvas.toDataURL("image/jpeg");
+
+        fetch("/detect", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ image: dataURL }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success && data.image) {
+              resultImg.src = data.image;
+            }
+          });
+      };
+
+      setInterval(captureAndSend, 300);
+    </script>
+  </body>
+</html>
